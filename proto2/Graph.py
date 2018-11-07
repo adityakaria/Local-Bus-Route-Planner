@@ -200,7 +200,7 @@ def main():
 	fh=open("bus.txt","r") 
 	f=fh.readline()
 	l=f.rstrip('\n').split()
-	bt=l.pop(0) #bt: bustype
+	bt=l.pop(0) 			#bt: bustype
 	G.UpdateBusInfo(bt,l)
 	for f in fh:
 		l=f.rstrip('\n').split()
