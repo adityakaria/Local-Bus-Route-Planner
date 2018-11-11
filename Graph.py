@@ -9,6 +9,7 @@ class Vertex:
 		self.parent=None
 		self.MHListIndex=None
 		self.bus={'EXPRESS':False,'SERVICE':False,'CITY1':False, 'CITY2':False, 'CITY3': False, 'CITY4': False, 'CITY5': False, 'CITY6': False}
+		self.busFrom = None
 		self.ts=math.inf
 		self.cs=math.inf
 
@@ -53,28 +54,26 @@ class Vertex:
 
 
 class BUS:
-
 	def __init__(self,name):
 		self.name=name
 		if name=='EXPRESS':
-			self.speed=80
+			self.speed=75
 			self.rate=1.5
 		elif name=='CITY1' or name=='CITY2' or name=='CITY3' or name=='CITY4' or name=='CITY5' or name=='CITY6' :
-			self.speed=40
+			self.speed=30
 			self.rate=0.56
 		elif name=='SERVICE':
-			self.speed=50
+			self.speed=40
 			self.rate=1
 
 
 class Graph:
-
 	def __init__(self):
 		self.nv=0     #no. of vertices
 		self.Vertices={}     #vertices dictionary
 
-	def __iter__(self):
-		return iter(self.Vertices.values())
+	# def __iter__(self):
+	# 	return iter(self.Vertices.values())
 	
 	def AddVertex(self,name):
 		self.nv=self.nv+1
@@ -103,10 +102,6 @@ class Graph:
 		return self.Vertices.keys()
 
 
-
-
-
-
 def DijkstrasSP(G,s,d):
 	R=[]
 	s.ds=0
@@ -126,45 +121,63 @@ def DijkstrasSP(G,s,d):
 				MH.UpdatePriority(V)
 				V.parent=U.name
 	print(R)
-			
+
 
 def DijkstrasST(G,s,d):
 	s.ts=0
 	s.ds=0
 	MH=MinHeap()
 	for u in G.Vertices:
-		MH.Insert(G.Vertices[u])		#because u is a string
+		MH.Insert(G.Vertices[u])	#because u is a string
+		# print(G.Vertices[u].name)
+		# print(G.Vertices[u].bus.items())
 	MH.BuildHeap()
+	print(MH)
 	while not MH.isEmpty():
 		U=MH.ExtractMin()
+		print("=================================================")
+		print(U.name)
 		for v in U.neighbours:
 			V=G.GetVertex(v)
+			print(V.name, "------------------------")
+			# print(U.bus, V.bus)
 			if V==s:
 				continue
 			if U.bus['EXPRESS'] and V.bus['EXPRESS']:
+				print("	--e--")
 				bus=BUS('EXPRESS')
 			elif U.bus['SERVICE'] and V.bus['SERVICE']:
+				print("	--s--")
 				bus=BUS('SERVICE')
 			elif U.bus['CITY1'] and V.bus['CITY1']:
+				print("	--c1--")
 				bus=BUS('CITY1')
 			elif U.bus['CITY2'] and V.bus['CITY2']:
+				print("	--c2--")
 				bus=BUS('CITY2')
 			elif U.bus['CITY3'] and V.bus['CITY3']:
+				print("	--c3--")
 				bus=BUS('CITY3')
 			elif U.bus['CITY4'] and V.bus['CITY4']:
+				print("	--c4--")
 				bus=BUS('CITY4')
 			elif U.bus['CITY5'] and V.bus['CITY5']:
+				print("	--c5--")
 				bus=BUS('CITY5')
 			elif U.bus['CITY6'] and V.bus['CITY6']:
+				print("	--c6--")
 				bus=BUS('CITY6')
-			if bus==None:
+			else:
 				continue
 			if (V.DistFromSource()/bus.speed)>=(U.DistFromSource()/bus.speed)+(U.NeighbourWeight(v)/bus.speed):
 				V.ts=U.ts+(U.NeighbourWeight(v)/bus.speed)
 				V.ds=U.ds+U.NeighbourWeight(v)
 				MH.UpdatePriority(V)
 				V.parent=U.name
+				V.busFrom = bus.name
+				print("updated: ", U.name, "->" ,V.name)
 			bus=None      #because might have to change the bus
+		# print(U.name, ">--" + bus.name + "-->", V.name)
 
 
 def DijkstrasCP(G,s,d):
@@ -203,14 +216,18 @@ def DijkstrasCP(G,s,d):
 				V.cs=U.cs+(U.NeighbourWeight(v)*bus.rate)
 				V.ds=U.ds+U.NeighbourWeight(v)
 				MH.UpdatePriority(V)
+				# print(U.name, ">--" +  bus.name + "-->", V.name)
 				V.parent=U.name
+				U.busFrom = bus.name
 			bus=None      #because we might have to change the bus
 
 
-def PrintPath(G,d):                    #to print the path from sorce to destination-using recursion
+def PrintPath(G,d):             #to print the path from sorce to destination-using recursion
 	if G.GetVertex(d).parent!=None:
 		PrintPath(G,G.GetVertex(d).parent)
-	print(G.GetVertex(d).name,' -------->',end=' ')
+	print(G.GetVertex(d).name,' ---' + G.GetVertex(d).busFrom + '----->',end=' ')
+
+
 
 
 
@@ -223,7 +240,6 @@ def main():
 	# 	l=l.split()
 	# 	G.AddEdge(l[0],l[1],int(l[2]))
 	# 	l=input()
-
 
 	ew=open("EdgeWeight.txt", "r")
 	while True:
