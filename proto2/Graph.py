@@ -8,7 +8,7 @@ class Vertex:
 		self.ds=math.inf   				#initially set distance from source to infinity
 		self.parent=None
 		self.MHListIndex=None
-		self.bus={'Express':False,'Service':False,'City':False}
+		self.bus={'EXPRESS':False,'SERVICE':False,'CITY1':False, 'CITY2':False, 'CITY3': False, 'CITY4': False, 'CITY5': False, 'CITY6': False}
 		self.ts=math.inf
 		self.cs=math.inf
 
@@ -17,6 +17,7 @@ class Vertex:
 
 	def __str__(self):
 		return str(self.name) + ' neighbours are ' + str([x for x in self.neighbours.keys()])
+
 
 	def NeighbourWeight(self, nbr):
 		if nbr in self.neighbours:
@@ -55,15 +56,15 @@ class BUS:
 
 	def __init__(self,name):
 		self.name=name
-		if name=='Express':
+		if name=='EXPRESS':
 			self.speed=80
-			self.rate=1000
-		elif name=='City':
+			self.rate=1.5
+		elif name=='CITY1' or name=='CITY2' or name=='CITY3' or name=='CITY4' or name=='CITY5' or name=='CITY6' :
 			self.speed=40
-			self.rate=500
-		elif name=='Service':
+			self.rate=0.56
+		elif name=='SERVICE':
 			self.speed=50
-			self.rate=800
+			self.rate=1
 
 
 class Graph:
@@ -72,6 +73,9 @@ class Graph:
 		self.nv=0     #no. of vertices
 		self.Vertices={}     #vertices dictionary
 
+	def __iter__(self):
+		return iter(self.Vertices.values())
+	
 	def AddVertex(self,name):
 		self.nv=self.nv+1
 		NewVertex=Vertex(name)
@@ -97,6 +101,8 @@ class Graph:
 
 	def GetVertices(self):
 		return self.Vertices.keys()
+
+
 
 
 
@@ -135,12 +141,22 @@ def DijkstrasST(G,s,d):
 			V=G.GetVertex(v)
 			if V==s:
 				continue
-			if U.bus['Express'] and V.bus['Express']:
-				bus=BUS('Express')
-			elif U.bus['Service'] and V.bus['Service']:
-				bus=BUS('Service')
-			elif U.bus['City'] and V.bus['City']:
-				bus=BUS('City')
+			if U.bus['EXPRESS'] and V.bus['EXPRESS']:
+				bus=BUS('EXPRESS')
+			elif U.bus['SERVICE'] and V.bus['SERVICE']:
+				bus=BUS('SERVICE')
+			elif U.bus['CITY1'] and V.bus['CITY1']:
+				bus=BUS('CITY1')
+			elif U.bus['CITY2'] and V.bus['CITY2']:
+				bus=BUS('CITY2')
+			elif U.bus['CITY3'] and V.bus['CITY3']:
+				bus=BUS('CITY3')
+			elif U.bus['CITY4'] and V.bus['CITY4']:
+				bus=BUS('CITY4')
+			elif U.bus['CITY5'] and V.bus['CITY5']:
+				bus=BUS('CITY5')
+			elif U.bus['CITY6'] and V.bus['CITY6']:
+				bus=BUS('CITY6')
 			if bus==None:
 				continue
 			if (V.DistFromSource()/bus.speed)>=(U.DistFromSource()/bus.speed)+(U.NeighbourWeight(v)/bus.speed):
@@ -165,12 +181,22 @@ def DijkstrasCP(G,s,d):
 			V=G.GetVertex(v)
 			if V==s:
 				continue
-			if U.bus['City'] and V.bus['City']:
-				bus=BUS('City')
-			elif U.bus['Service'] and V.bus['Service']:
-				bus=BUS('Service')
-			elif U.bus['Express'] and V.bus['Express']:
-				bus=BUS('Express')
+			if U.bus['CITY1'] and V.bus['CITY1']:
+				bus=BUS('CITY1')
+			elif U.bus['CITY2'] and V.bus['CITY2']:
+				bus=BUS('CITY2')
+			elif U.bus['CITY3'] and V.bus['CITY3']:
+				bus=BUS('CITY3')
+			elif U.bus['CITY4'] and V.bus['CITY4']:
+				bus=BUS('CITY4')
+			elif U.bus['CITY5'] and V.bus['CITY5']:
+				bus=BUS('CITY5')
+			elif U.bus['CITY6'] and V.bus['CITY6']:
+				bus=BUS('CITY6')
+			elif U.bus['SERVICE'] and V.bus['SERVICE']:
+				bus=BUS('SERVICE')
+			elif U.bus['EXPRESS'] and V.bus['EXPRESS']:
+				bus=BUS('EXPRESS')
 			if bus==None:
 				continue
 			if (V.DistFromSource()*bus.rate)>=(U.DistFromSource()*bus.rate)+(U.NeighbourWeight(v)*bus.rate):
@@ -191,16 +217,29 @@ def PrintPath(G,d):                    #to print the path from sorce to destinat
 def main():
 	G=Graph()
 	print("Updating contents of map")
-	print("enter values")
-	l=input()
-	while l!='':
-		l=l.split()
-		G.AddEdge(l[0],l[1],int(l[2]))
-		l=input()
-	fh=open("bus.txt","r") 
+	# print("enter values")
+	# l=input()
+	# while l!='':
+	# 	l=l.split()
+	# 	G.AddEdge(l[0],l[1],int(l[2]))
+	# 	l=input()
+
+
+	ew=open("EdgeWeight.txt", "r")
+	while True:
+		f=ew.readline()
+		l=f.rstrip('\n').split()
+		if l == []:
+			break
+		# l=l.split()
+		G.AddEdge(l[0],l[1],float(l[2]))
+		# print(l)
+
+
+	fh=open("BUS.txt","r")
 	f=fh.readline()
 	l=f.rstrip('\n').split()
-	bt=l.pop(0) 			#bt: bustype
+	bt=l.pop(0)		#bt: bustype
 	G.UpdateBusInfo(bt,l)
 	for f in fh:
 		l=f.rstrip('\n').split()
@@ -238,7 +277,8 @@ def main():
 			DijkstrasST(G,G.GetVertex(s),G.GetVertex(d))
 			print("your path from souce to destination is")
 			PrintPath(G,d)
-			print(G.GetVertex(d).ts)
+			print("\b\b\b\b\b\b\b\b\b\n")
+			print("Time taken: Approx.", math.floor((G.GetVertex(d).ts) * 60), "minutes")
 		elif c2==2:
 			DijkstrasCP(G,G.GetVertex(s),G.GetVertex(d))
 			print("your path from souce to destination is")

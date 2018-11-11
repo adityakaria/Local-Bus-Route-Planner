@@ -4,6 +4,9 @@ class MinHeap:
 		self.HeapList=[]
 		self.num=0
 
+	def __str__(self):
+		return "\n----\n" + str(self.HeapList) + "\n----\n"
+
 	def Insert(self,vertex):
 		vertex.MHListIndex=self.num
 		self.HeapList.append(vertex)
