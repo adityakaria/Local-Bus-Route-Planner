@@ -1,17 +1,15 @@
 import math
 from MinHeap import MinHeap
 c2=0
-finalNode = None
 class Vertex:
 	def __init__(self,name):
 		self.name=name
 		self.neighbours={}
 		self.ds=math.inf   				#initially set distance from source to infinity
 		self.parent=None
-		self.busFrom= None    #?
 		self.MHListIndex=None
-		self.bus={'EXPRESS':False,'SERVICE':False,'CITY':False,'CITY1':False, 'CITY2':False, 'CITY3': False, 'CITY4': False, 'CITY5': False, 'CITY6': False}
-		#self.busCopy=self.bus   #?
+		self.bus={'EXPRESS':False,'SERVICE':False,'CITY1':False, 'CITY2':False, 'CITY3': False, 'CITY4': False, 'CITY5': False, 'CITY6': False}
+		self.busFrom = None
 		self.ts=math.inf
 		self.cs=math.inf
 
@@ -20,6 +18,7 @@ class Vertex:
 
 	def __str__(self):
 		return str(self.name) + ' neighbours are ' + str([x for x in self.neighbours.keys()])
+
 
 	def NeighbourWeight(self, nbr):
 		if nbr in self.neighbours:
@@ -30,10 +29,10 @@ class Vertex:
 
 	def SetBus(self,bustype):
 		self.bus[bustype]=True
-		#self.busCopy[bustype]=True    #?
 
 	def TimeFromSource(self):
 		return self.ts
+
 
 	def __lt__(self,other):
 		global c2
@@ -55,13 +54,12 @@ class Vertex:
 
 
 class BUS:
-
 	def __init__(self,name):
 		self.name=name
 		if name=='EXPRESS':
 			self.speed=75
 			self.rate=1.5
-		elif name=='CITY1' or name=='CITY' or name=='CITY2' or name=='CITY3' or name=='CITY4' or name=='CITY5' or name=='CITY6' :
+		elif name=='CITY1' or name=='CITY2' or name=='CITY3' or name=='CITY4' or name=='CITY5' or name=='CITY6' :
 			self.speed=30
 			self.rate=0.56
 		elif name=='SERVICE':
@@ -70,14 +68,13 @@ class BUS:
 
 
 class Graph:
-
 	def __init__(self):
 		self.nv=0     #no. of vertices
 		self.Vertices={}     #vertices dictionary
 
-	def __iter__(self):     #?
-		return iter(self.Vertices.values())
-
+	# def __iter__(self):
+	# 	return iter(self.Vertices.values())
+	
 	def AddVertex(self,name):
 		self.nv=self.nv+1
 		NewVertex=Vertex(name)
@@ -95,6 +92,7 @@ class Graph:
 	def GetVertex(self,name):
 		if name in self.Vertices:
 			return self.Vertices[name]
+
 
 	def UpdateBusInfo(self,bustype,l):
 		for i in range(0,len(l)):
@@ -126,7 +124,6 @@ def DijkstrasSP(G,s,d):
 
 
 def DijkstrasST(G,s,d):
-	bus=None
 	s.ts=0
 	s.ds=0
 	MH=MinHeap()
@@ -135,43 +132,55 @@ def DijkstrasST(G,s,d):
 		# print(G.Vertices[u].name)
 		# print(G.Vertices[u].bus.items())
 	MH.BuildHeap()
+	print(MH)
 	while not MH.isEmpty():
 		U=MH.ExtractMin()
+		print("=================================================")
+		print(U.name)
 		for v in U.neighbours:
 			V=G.GetVertex(v)
+			print(V.name, "------------------------")
 			# print(U.bus, V.bus)
 			if V==s:
 				continue
 			if U.bus['EXPRESS'] and V.bus['EXPRESS']:
+				print("	--e--")
 				bus=BUS('EXPRESS')
 			elif U.bus['SERVICE'] and V.bus['SERVICE']:
+				print("	--s--")
 				bus=BUS('SERVICE')
-			elif U.bus['CITY'] and V.bus['CITY']:
-				bus=BUS('CITY')
+			elif U.bus['CITY1'] and V.bus['CITY1']:
+				print("	--c1--")
+				bus=BUS('CITY1')
 			elif U.bus['CITY2'] and V.bus['CITY2']:
+				print("	--c2--")
 				bus=BUS('CITY2')
 			elif U.bus['CITY3'] and V.bus['CITY3']:
+				print("	--c3--")
 				bus=BUS('CITY3')
 			elif U.bus['CITY4'] and V.bus['CITY4']:
+				print("	--c4--")
 				bus=BUS('CITY4')
 			elif U.bus['CITY5'] and V.bus['CITY5']:
+				print("	--c5--")
 				bus=BUS('CITY5')
 			elif U.bus['CITY6'] and V.bus['CITY6']:
+				print("	--c6--")
 				bus=BUS('CITY6')
-			if bus==None:
+			else:
 				continue
 			if (V.DistFromSource()/bus.speed)>=(U.DistFromSource()/bus.speed)+(U.NeighbourWeight(v)/bus.speed):
 				V.ts=U.ts+(U.NeighbourWeight(v)/bus.speed)
 				V.ds=U.ds+U.NeighbourWeight(v)
 				MH.UpdatePriority(V)
 				V.parent=U.name
-				V.busFrom=bus.name
+				V.busFrom = bus.name
+				print("updated: ", U.name, "->" ,V.name)
 			bus=None      #because might have to change the bus
 		# print(U.name, ">--" + bus.name + "-->", V.name)
 
 
 def DijkstrasCP(G,s,d):
-	bus=None
 	s.ts=0
 	s.ds=0
 	s.cs=0
@@ -185,8 +194,8 @@ def DijkstrasCP(G,s,d):
 			V=G.GetVertex(v)
 			if V==s:
 				continue
-			if U.bus['CITY'] and V.bus['CITY']:
-				bus=BUS('CITY')
+			if U.bus['CITY1'] and V.bus['CITY1']:
+				bus=BUS('CITY1')
 			elif U.bus['CITY2'] and V.bus['CITY2']:
 				bus=BUS('CITY2')
 			elif U.bus['CITY3'] and V.bus['CITY3']:
@@ -209,22 +218,17 @@ def DijkstrasCP(G,s,d):
 				MH.UpdatePriority(V)
 				# print(U.name, ">--" +  bus.name + "-->", V.name)
 				V.parent=U.name
-				V.busFrom=bus.name
+				U.busFrom = bus.name
 			bus=None      #because we might have to change the bus
 
-def PrintPath(G,s,d):                    #to print the path from sorce to destination-using recursion
-	if G.GetVertex(d).parent!=None:
-		PrintPath(G,s,G.GetVertex(d).parent)
-	if d==s:
-		print(G.GetVertex(d).name,end=' ')
-	else:
-		print(' ---',G.GetVertex(d).busFrom,'----->',G.GetVertex(d).name,end=' ')
-	#print(G.GetVertex(d).name,' -------->',end=' ')
 
-"""def PrintPath(G,d):                    #to print the path from sorce to destination-using recursion
+def PrintPath(G,d):             #to print the path from sorce to destination-using recursion
 	if G.GetVertex(d).parent!=None:
 		PrintPath(G,G.GetVertex(d).parent)
-	print(G.GetVertex(d).name,' ---' + G.GetVertex(d).busFrom + '----->',end=' ')""" 
+	print(G.GetVertex(d).name,' ---' + G.GetVertex(d).busFrom + '----->',end=' ')
+
+
+
 
 
 def main():
@@ -236,6 +240,7 @@ def main():
 	# 	l=l.split()
 	# 	G.AddEdge(l[0],l[1],int(l[2]))
 	# 	l=input()
+
 	ew=open("EdgeWeight.txt", "r")
 	while True:
 		f=ew.readline()
@@ -245,7 +250,9 @@ def main():
 		# l=l.split()
 		G.AddEdge(l[0],l[1],float(l[2]))
 		# print(l)
-	fh=open("bus.txt","r")
+
+
+	fh=open("BUS.txt","r")
 	f=fh.readline()
 	l=f.rstrip('\n').split()
 	bt=l.pop(0)		#bt: bustype
@@ -257,23 +264,20 @@ def main():
 	print("Map formed succesfully")
 	print("enter the source")
 	s=input()
-	#s='NITK'
 	print("enter the destination")
 	d=input()
-	#d='MANNAGUDDA'
 	print("Enter your choice")
 	print("How do you want to go?")
 	print("1.own Transport-Car,Motorcycle")
 	print("2.public Transport-Bus")
 	c1=int(input())
-	#c1=2
 	while c1!=1 and c1!=2:
 		print("Ooops, Its seems you have entered an invalid choice.Please enter a valid choice")
 		c1=int(input())
 	if c1==1:
 		DijkstrasSP(G,G.GetVertex(s),G.GetVertex(d))
 		print("your path from souce to destination is")
-		PrintPath(G,s,d)
+		PrintPath(G,d)
 		print(G.GetVertex(d).ds)
 	elif c1==2:
 		print("Choose your priority")
@@ -288,14 +292,16 @@ def main():
 		if c2==1:
 			DijkstrasST(G,G.GetVertex(s),G.GetVertex(d))
 			print("your path from souce to destination is")
-			PrintPath(G,s,d)
+			PrintPath(G,d)
 			print("\b\b\b\b\b\b\b\b\b\n")
 			print("Time taken: Approx.", math.floor((G.GetVertex(d).ts) * 60), "minutes")
 		elif c2==2:
 			DijkstrasCP(G,G.GetVertex(s),G.GetVertex(d))
 			print("your path from souce to destination is")
-			PrintPath(G,s,d)
+			PrintPath(G,d)
 			print(G.GetVertex(d).cs)
+
+
 
 
 if __name__=='__main__':

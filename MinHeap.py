@@ -4,13 +4,6 @@ class MinHeap:
 		self.HeapList=[]
 		self.num=0
 
-	def __str__(self):
-		print("\n----\n")
-		for i in self.HeapList:
-			print(i.name)
-		print("\n----\n")
-		return " "
-
 	def Insert(self,vertex):
 		vertex.MHListIndex=self.num
 		self.HeapList.append(vertex)
@@ -42,7 +35,7 @@ class MinHeap:
 	def ExtractMin(self):
 		if len(self.HeapList)>1:
 			min=self.HeapList[0]
-			self.HeapList[0]=self.HeapList.pop()   #throws list index of out range
+			self.HeapList[0]=self.HeapList.pop()
 			self.HeapList[0].MHListIndex=0
 			self.Heapify(0,len(self.HeapList))
 		else:
@@ -72,24 +65,4 @@ class MinHeap:
 			return False
 		return True
 
-	def HeapSort(self): #have to change
-		n=len(self.HeapList)
-		for i in range(n-1, 0, -1):
-			temp=self.HeapList[i]
-			self.HeapList[i]=self.HeapList[0]
-			self.HeapList[0]=temp
-			self.Heapify(0,i)
 
-
-
-def main():
-	H=MH()
-	print("enter values")
-	l=input()
-	l=list(map(int,l.split()))
-	print(l)
-	for i in range(0,len(l)):
-		H.Insert(l[i])
-	print(H.a)
-	H.BuildHeap()
-	print(H.a)
